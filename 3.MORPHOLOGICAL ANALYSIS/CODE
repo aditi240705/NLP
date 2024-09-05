@@ -1,0 +1,17 @@
+import nltk
+from nltk.stem import WordNetLemmatizer
+from nltk import word_tokenize
+nltk.download('punkt')
+nltk.download('wordnet')
+def morphological_analysis(text):
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
+    for token in tokens:
+        lemma = lemmatizer.lemmatize(token)
+        print(f"Token: {token}, Lemma: {lemma}")
+def main():
+    text = input("Enter a sentence or phrase: ")
+    print("\nMorphological Analysis:")
+    morphological_analysis(text)
+if __name__ == "__main__":
+    main()
