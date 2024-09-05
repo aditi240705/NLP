@@ -1,0 +1,16 @@
+import re
+text = "Hello, my phone number is 123-456-7890 and my email is john.doe@example.com."
+phone_pattern = r'\d{3}-\d{3}-\d{4}'
+email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+phone_matches = re.findall(phone_pattern, text)
+print("Phone numbers:", phone_matches)
+email_matches = re.findall(email_pattern, text)
+print("Email addresses:", email_matches)
+hello_pattern = r'Hello'
+hello_match = re.search(hello_pattern, text)
+if hello_match:
+    print("Found 'Hello' at position", hello_match.start())
+else:
+    print("Did not find 'Hello'")
+new_text = re.sub(hello_pattern, "Hi", text)
+print("New text:", new_text)
