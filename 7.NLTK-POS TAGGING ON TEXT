@@ -1,0 +1,16 @@
+import nltk
+from nltk import word_tokenize
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+def perform_pos_tagging(text):
+    tokens = word_tokenize(text)
+    tagged_text = nltk.pos_tag(tokens)
+    return tagged_text
+def main():
+    text = input("Please enter a text to perform part-of-speech tagging: ")
+    tagged_text = perform_pos_tagging(text)
+    print("Part-of-Speech Tagged Text:")
+    for word, tag in tagged_text:
+        print(f"{word}: {tag}")
+if __name__ == "__main__":
+    main()
