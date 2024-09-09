@@ -1,0 +1,62 @@
+class TransformationRule:
+    def __init__(self, pattern, replacement):
+        self.pattern = pattern
+        self.replacement = replacement
+
+    def apply(self, tagged_sentence):
+        new_tagged_sentence = []
+        for word, tag in tagged_sentence:
+            if self.pattern.match(word, tag):
+                new_tagged_sentence.append((word, self.replacement))
+            else:
+                new_tagged_sentence.append((word, tag))
+        return new_tagged_sentence
+
+class TagPattern:
+    def __init__(self, word_pattern, tag_pattern):
+        self.word_pattern = word_pattern
+        self.tag_pattern = tag_pattern
+
+    def match(self, word, tag):
+        return self.word_pattern.match(word) and self.tag_pattern.match(tag)
+
+import re
+
+# Define a set of transformation rules
+rules = [
+    TransformationRule(
+        TagPattern(re.compile(r'\b\w+ing\b'), re.compile(r'VB')),
+        'VBG'  # Present participle
+    ),
+    TransformationRule(
+        TagPattern(re.compile(r'\b\w+ed\b'), re.compile(r'VB')),
+        'VBD'  # Past tense
+    ),
+    TransformationRule(
+        TagPattern(re.compile(r'\b\w+s\b'), re.compile(r'NNS')),
+        'NNS'  # Plural noun
+    ),
+    TransformationRule(
+        TagPattern(re.compile(r'\b\w+ly\b'), re.compile(r'RB')),
+        'RB'  # Adverb
+    ),
+]
+
+def apply_rules(tagged_sentence):
+    for rule in rules:
+        tagged_sentence = rule.apply(tagged_sentence)
+    return tagged_sentence
+
+def tag_sentence(sentence):
+    words = sentence.split()
+    tagged_words = [(word, 'Unknown') for word in words]
+    return apply_rules(tagged_words)
+
+def main():
+    sentence = input("Enter a sentence: ")
+    tagged_words = tag_sentence(sentence)
+    for word, tag in tagged_words:
+        print(f"{word} ({tag})")
+
+if __name__ == "__main__":
+    main()
