@@ -1,0 +1,56 @@
+class GrammarRule:
+    def __init__(self, lhs, rhs):
+        self.lhs = lhs
+        self.rhs = rhs
+
+class EarleyParser:
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.parse_table = []
+
+    def parse(self, input_string):
+        self.parse_table = [[] for _ in range(len(input_string) + 1)]
+        self.parse_table[0].append((self.grammar[0].lhs, 0, 0))
+
+        for i in range(len(input_string) + 1):
+            for state in self.parse_table[i]:
+                if state[2] < len(state[0]):
+                    symbol = state[0][state[2]]
+                    if symbol in [rule.lhs for rule in self.grammar]:
+                        for rule in self.grammar:
+                            if rule.lhs == symbol:
+                                self.parse_table[i].append((rule.rhs, i, 0))
+                    else:
+                        if i < len(input_string) and symbol == input_string[i]:
+                            self.parse_table[i + 1].append((state[0], state[1], state[2] + 1))
+
+        return self.parse_table[-1]
+
+    def print_parse_table(self, input_string):
+        for i in range(len(input_string) + 1):
+            print(f"State {i}:")
+            for state in self.parse_table[i]:
+                print(f"  ({state[0]}, {state[1]}, {state[2]})")
+
+# Define a context-free grammar
+grammar = [
+    GrammarRule('S', ['A', 'B']),
+    GrammarRule('A', ['a', 'A', 'a']),
+    GrammarRule('A', ['a']),
+    GrammarRule('B', ['b', 'B', 'b']),
+    GrammarRule('B', ['b']),
+]
+
+parser = EarleyParser(grammar)
+
+def main():
+    input_string = input("Enter a string: ")
+    parse_table = parser.parse(input_string)
+    if parse_table:
+        print("String is in the language")
+        parser.print_parse_table(input_string)
+    else:
+        print("String is not in the language")
+
+if __name__ == "__main__":
+    main()
