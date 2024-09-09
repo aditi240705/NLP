@@ -1,0 +1,91 @@
+class GrammarRule:
+    def __init__(self, lhs, rhs):
+        self.lhs = lhs
+        self.rhs = rhs
+
+class ParseTreeNode:
+    def __init__(self, value, children=None):
+        self.value = value
+        self.children = children if children else []
+
+class ParseTreeGenerator:
+    def __init__(self, grammar):
+        self.grammar = grammar
+
+    def generate_parse_tree(self, sentence):
+        parse_table = self.earley_parse(sentence)
+        if not parse_table:
+            return None
+
+        start_symbol = self.grammar[0].lhs
+        return self.build_parse_tree(parse_table, start_symbol, sentence)
+
+    def earley_parse(self, sentence):
+        parse_table = [[] for _ in range(len(sentence) + 1)]
+        parse_table[0].append((self.grammar[0].lhs, 0, 0))
+
+        for i in range(len(sentence) + 1):
+            for state in parse_table[i]:
+                if state[2] < len(state[0]):
+                    symbol = state[0][state[2]]
+                    if symbol in [rule.lhs for rule in self.grammar]:
+                        for rule in self.grammar:
+                            if rule.lhs == symbol:
+                                parse_table[i].append((rule.rhs, i, 0))
+                    else:
+                        if i < len(sentence) and symbol == sentence[i]:
+                            parse_table[i + 1].append((state[0], state[1], state[2] + 1))
+
+        return parse_table
+
+    def build_parse_tree(self, parse_table, symbol, sentence):
+        for state in parse_table[-1]:
+            if state[0] == symbol and state[2] == len(symbol):
+                return self.build_parse_tree_recursive(parse_table, state, sentence)
+
+        return None
+
+    def build_parse_tree_recursive(self, parse_table, state, sentence):
+        node = ParseTreeNode(state[0])
+        for i in range(len(state[0])):
+            symbol = state[0][i]
+            if symbol in [rule.lhs for rule in self.grammar]:
+                child_state = None
+                for s in parse_table[state[1] + i]:
+                    if s[0] == symbol and s[2] == len(symbol):
+                        child_state = s
+                        break
+                if child_state:
+                    node.children.append(self.build_parse_tree_recursive(parse_table, child_state, sentence))
+            else:
+                node.children.append(ParseTreeNode(symbol))
+
+        return node
+
+    def print_parse_tree(self, parse_tree, level=0):
+        print('  ' * level + str(parse_tree.value))
+        for child in parse_tree.children:
+            self.print_parse_tree(child, level + 1)
+
+# Define a context-free grammar
+grammar = [
+    GrammarRule('S', ['A', 'B']),
+    GrammarRule('A', ['a', 'A', 'a']),
+    GrammarRule('A', ['a']),
+    GrammarRule('B', ['b', 'B', 'b']),
+    GrammarRule('B', ['b']),
+]
+
+generator = ParseTreeGenerator(grammar)
+
+def main():
+    sentence = input("Enter a sentence: ")
+    parse_tree = generator.generate_parse_tree(sentence)
+    if parse_tree:
+        print("Parse Tree:")
+        generator.print_parse_tree(parse_tree)
+    else:
+        print("No parse tree found")
+
+if __name__ == "__main__":
+    main()
