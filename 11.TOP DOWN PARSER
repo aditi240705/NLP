@@ -1,0 +1,74 @@
+class GrammarRule:
+    def __init__(self, lhs, rhs):
+        self.lhs = lhs
+        self.rhs = rhs
+
+class Parser:
+    def __init__(self, grammar):
+        self.grammar = grammar
+        self.parse_table = self.build_parse_table()
+
+    def build_parse_table(self):
+        parse_table = {}
+        for rule in self.grammar:
+            if rule.lhs not in parse_table:
+                parse_table[rule.lhs] = []
+            parse_table[rule.lhs].append(rule.rhs)
+        return parse_table
+
+    def parse(self, input_string):
+        return self.parse_recursive(self.grammar[0].lhs, input_string)
+
+    def parse_recursive(self, symbol, input_string):
+        if symbol not in self.parse_table:
+            if symbol == input_string:
+                return True
+            else:
+                return False
+
+        for rule in self.parse_table[symbol]:
+            if len(rule) == 0:
+                if len(input_string) == 0:
+                    return True
+                else:
+                    continue
+
+            match = True
+            remaining_input = input_string
+            for r in rule:
+                if r not in self.parse_table:
+                    if not r == remaining_input[:len(r)]:
+                        match = False
+                        break
+                    remaining_input = remaining_input[len(r):]
+                else:
+                    if not self.parse_recursive(r, remaining_input):
+                        match = False
+                        break
+                    remaining_input = remaining_input[len(r):]
+
+            if match:
+                return True
+
+        return False
+
+# Define a context-free grammar
+grammar = [
+    GrammarRule('S', ['A', 'B']),
+    GrammarRule('A', ['a', 'A', 'a']),
+    GrammarRule('A', ['a']),
+    GrammarRule('B', ['b', 'B', 'b']),
+    GrammarRule('B', ['b']),
+]
+
+parser = Parser(grammar)
+
+def main():
+    input_string = input("Enter a string: ")
+    if parser.parse(input_string):
+        print("String is in the language")
+    else:
+        print("String is not in the language")
+
+if __name__ == "__main__":
+    main()
