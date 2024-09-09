@@ -1,0 +1,47 @@
+import re
+rules = {
+    'NN': [  # Nouns
+        (r'^[A-Z].*', 'Proper Noun'),  
+        (r'\b\w+(ion|ment|ence|ance)\b', 'Noun'), 
+        (r'\b\w+(ship|hood|dom|ism)\b', 'Noun'),  
+    ],
+    'VB': [  # Verbs
+        (r'\b\w+(ate|ify|ise|ize)\b', 'Verb'),  
+        (r'\b\w+(ing|ed)\b', 'Verb'),  
+    ],
+    'JJ': [  
+        (r'\b\w+(al|ful|ic|ive|less|ly)\b', 'Adjective'),  
+        (r'\b\w+(ous|able|ible)\b', 'Adjective'), 
+    ],
+    'RB': [  # Adverbs
+        (r'\b\w+(ly|wise|wards)\b', 'Adverb'),  
+    ],
+    'DT': [  # Determiners
+        (r'\b(the|a|an)\b', 'Determiner'),  
+    ],
+}
+
+def tag_word(word):
+    for tag, patterns in rules.items():
+        for pattern, description in patterns:
+            if re.match(pattern, word, re.IGNORECASE):
+                return tag
+    return 'Unknown'
+
+def tag_sentence(sentence):
+    """Tag a sentence using the rules"""
+    words = sentence.split()
+    tagged_words = []
+    for word in words:
+        tag = tag_word(word)
+        tagged_words.append((word, tag))
+    return tagged_words
+
+def main():
+    sentence = input("Enter a sentence: ")
+    tagged_words = tag_sentence(sentence)
+    for word, tag in tagged_words:
+        print(f"{word} ({tag})")
+
+if __name__ == "__main__":
+    main()
